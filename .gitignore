@@ -103,5 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# PyCharm
+.idea/
+
 # BTD6 Bot
 _logs/
