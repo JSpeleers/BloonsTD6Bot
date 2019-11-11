@@ -9,11 +9,15 @@ import config
 class Bot(metaclass=ABCMeta):
 
     def __init__(self):
-        self.monkeys_collected = 0
-        self.game_counter = 0
-        self.wait_location = None
+        self._monkeys_collected = 0
+        self._game_counter = 0
+        self._wait_location = None
         pag.PAUSE = config.PYAUTOGUI_SLEEP_SECONDS_BETWEEN_CALLS
         config.init_logging()
+
+    @property
+    def wait_location(self):
+        return self._wait_location
 
     # Clicks
     @staticmethod
@@ -46,8 +50,8 @@ class Bot(metaclass=ABCMeta):
             while self._is_present(unopened_monkey):
                 self._click_on(unopened_monkey)
                 pag.click()
-                self.monkeys_collected += 1
-                logging.info('Collected monkey {}'.format(self.monkeys_collected))
+                self._monkeys_collected += 1
+                logging.info('Collected monkey {}'.format(self._monkeys_collected))
                 time.sleep(2)
 
     # Waits
@@ -83,8 +87,8 @@ class Bot(metaclass=ABCMeta):
     # Checks
 
     def _is_present(self, img):
-        self.wait_location = pag.locateCenterOnScreen(img)
-        return self.wait_location is not None
+        self._wait_location = pag.locateCenterOnScreen(img)
+        return self._wait_location is not None
 
     @staticmethod
     def _check_reload(wait_counter):
@@ -108,7 +112,7 @@ class Bot(metaclass=ABCMeta):
             logging.error('Defeat detected: starting new game')
             self.wait_for(config.BUTTON_LEVEL_TO_HOME)
             self._click_on(config.BUTTON_LEVEL_TO_HOME)
-            self.game_counter -= 1
+            self._game_counter -= 1
             self.main()
             exit(-1)
 
@@ -120,22 +124,22 @@ class Bot(metaclass=ABCMeta):
         time.sleep(config.START_SLEEP_SECONDS)
 
         while True:
-            self.game_counter += 1
-            logging.info('Starting game {}'.format(self.game_counter))
+            self._game_counter += 1
+            logging.info('Starting game {}'.format(self._game_counter))
             initial_time = time.time()
 
             try:
-                self.play_game()
+                self._play_game()
             except pag.FailSafeException:
                 logging.info('Bot stopped at game {}. Collected {} monkeys.'.format(
-                    self.game_counter, self.monkeys_collected))
+                    self._game_counter, self._monkeys_collected))
                 exit(0)
 
             game_time = time.time() - initial_time
             logging.info(
                 'Game {} has been completed in {} minutes {} seconds'.format(
-                    self.game_counter, int(game_time // 60), int(game_time % 60)))
+                    self._game_counter, int(game_time // 60), int(game_time % 60)))
 
     @abstractmethod
-    def play_game(self):
+    def _play_game(self):
         pass  # Require implementation

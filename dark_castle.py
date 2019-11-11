@@ -9,7 +9,7 @@ class DarkCastleBot(Bot):
         Bot.__init__(self)
 
     # Single game
-    def play_game(self):
+    def _play_game(self):
         self._click_on(config.BUTTON_PLAY)
         self._click_on(config.BUTTON_EXPERT_MAPS)
         self._click_on(config.MAPS_DARK_CASTLE)
