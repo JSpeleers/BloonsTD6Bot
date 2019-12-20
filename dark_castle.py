@@ -1,6 +1,7 @@
 import config
 from bot import Bot
 from tower import Tower
+import logging
 
 
 class DarkCastleBot(Bot):
@@ -20,8 +21,10 @@ class DarkCastleBot(Bot):
 
         Tower(self, config.HOTKEY_HERO, config.POS_DARK_CASTLE_INTERSECTION_TOP, None, 'hero')
 
+        logging.info('Starting level')
         self._start_level()
 
+        logging.info("Waiting until round 4")
         self.wait_for(config.ROUND_DARK_CASTLE_4)
 
         ninja = Tower(self, config.HOTKEY_TOWER_NINJA, config.POS_DARK_CASTLE_INTERSECTION_BOTTOM,
@@ -30,6 +33,7 @@ class DarkCastleBot(Bot):
         ninja.upgrade(3, 1)
         ninja.upgrade(1, 3)
 
+        logging.info("Waiting until round 20")
         self.wait_for(config.ROUND_DARK_CASTLE_20)
 
         super_monkey = Tower(self, config.HOTKEY_TOWER_SUPER_MONKEY, config.POS_DARK_CASTLE_TOP_LEFT_MAIN_ROAD,

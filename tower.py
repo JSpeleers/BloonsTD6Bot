@@ -34,8 +34,10 @@ class Tower:
             raise ValueError('Track ({}) or level ({}) is too high'.format(track, to_level))
         pag.click(self._position)
         for i in range(to_level - self._upgrades[track - 1]):
-            logging.info('Waiting for {} {}'.format(self._name, self._tower_upgrades_to_string(track, i + 1)))
-            self._bot.wait_for(self._upgrade_path.format(track, self._upgrades[track - 1] + i + 1), reload=True)
+            tower_upgrade_text = self._tower_upgrades_to_string(track, self._upgrades[track - 1] + i + 1)
+            logging.info('Waiting for {} {} to become available'.format(self._name, tower_upgrade_text))
+            self._bot.wait_for(self._upgrade_path.format(track, self._upgrades[track - 1] + i + 1))
             self._upgrade_track(track)
+            logging.info('Upgraded {} to {}'.format(self._name, tower_upgrade_text))
         self._upgrades[track - 1] = to_level
         pag.click(self._position)
