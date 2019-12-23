@@ -1,9 +1,9 @@
 # BloonsTD6Bot
 
-This "Bloons Tower Defense 6 Bot" was intended to be used to farm candy (and thus instant monkeys) during time-limited 
+This "Bloons Tower Defense 6 Bot" was intended to be used to farm instant monkeys during time-limited 
 events such as Easter or Halloween.
 
-It is able to finish the map "Dark Castle" on easy difficulty, standard mode in about 6 minutes. 
+It is able to finish the map "Dark Castle" on easy difficulty, standard mode in less than 6 minutes. 
 At the time of creation, this was the fastest way to farm instant monkeys.
 
 ## Prerequisite
@@ -20,7 +20,7 @@ Starting the bot can be done using the following steps:
 
 1. Run BTD6 from Steam, windowed, with a resolution of 1600x900 and leave it at the home menu
 2. Run the bot: `$ python dark_castle.py`
-3. During the starting of this bot, switch to the BTD6 game so it is the top most window
+3. During the starting of this bot, switch to the BTD6 game so it is the top most window ánd place your mouse on the top left corner of the BTD6 screen
 
 The bot will now navigate the menu and start the game.
 
