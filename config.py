@@ -57,6 +57,12 @@ COLLECTION_Y = 450
 TOWER_NINJA_UPGRADE = 'resources/towers/ninja/upgrade_{}_{}.jpg'
 TOWER_SUPER_UPGRADE = 'resources/towers/super/upgrade_{}_{}.jpg'
 
+# Heroes
+HERO_SELECTED_OBYN_1 = 'resources/towers/heroes/obyn_1.jpg'
+HERO_SELECTED_OBYN_2 = 'resources/towers/heroes/obyn_2.jpg'
+
+HERO_SELECTED = {'obyn': [HERO_SELECTED_OBYN_1, HERO_SELECTED_OBYN_2]}
+
 # Maps
 
 # Dark Castle

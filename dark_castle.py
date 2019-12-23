@@ -46,4 +46,4 @@ class DarkCastleBot(Bot):
 
 if __name__ == '__main__':
     bot = DarkCastleBot()
-    bot.main()
+    bot.main(required_hero='obyn')

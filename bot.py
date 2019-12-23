@@ -16,6 +16,8 @@ class Bot(metaclass=ABCMeta):
         self._wait_location = None
         pag.PAUSE = config.PYAUTOGUI_SLEEP_SECONDS_BETWEEN_CALLS
         config.init_logging()
+        logging.info('Bloons TD6 bot initialising')
+        logging.debug('OpenCV loaded from {}'.format(cv2.data.haarcascades))
 
     @property
     def wait_location(self):
@@ -30,14 +32,6 @@ class Bot(metaclass=ABCMeta):
             logging.error('Cannot find {} on screen'.format(img))
             raise ValueError('Cannot find {} on screen'.format(img))
         pag.click(x)
-
-    @staticmethod
-    def _place_hero_on_position(hero, position):
-        x = pag.locateOnScreen(position)
-        print('moving to ', x)
-        pag.moveTo(x)
-        pag.typewrite(hero)
-        pag.click()
 
     def _start_level(self, fast_forward=True):
         self._click_on(config.BUTTON_START_LEVEL)
@@ -69,8 +63,9 @@ class Bot(metaclass=ABCMeta):
         self.wait_for(config.BUTTON_START_LEVEL)
 
     def _wait_for_level_completion(self):
+        logging.info('Waiting for level to be completed')
         self.wait_for(config.BUTTON_LEVEL_TO_HOME)
-        logging.info('Level has ended')
+        logging.info('Level completed')
         self._click_on(config.BUTTON_LEVEL_TO_HOME)
         time.sleep(4)
         if self._is_present(config.BUTTON_EVENT_COLLECT):
@@ -83,13 +78,6 @@ class Bot(metaclass=ABCMeta):
     def _is_present(self, img):
         self._wait_location = pag.locateCenterOnScreen(img, confidence=config.WAIT_FOR_MATCHING_CONFIDENCE)
         return self._wait_location is not None
-
-    @staticmethod
-    def _check_reload(wait_counter):
-        if wait_counter % config.RELOAD_TOWER_COUNTER == 0:
-            logging.debug('Reloading')
-            pag.click()
-            pag.click()
 
     def _do_checks(self, wait_counter):
         self._check_level_up(wait_counter)
@@ -117,15 +105,23 @@ class Bot(metaclass=ABCMeta):
             self.main()
             exit(-1)
 
+    def _check_selected_hero(self, hero_images, hero_name):
+        for img in hero_images:
+            if self._is_present(img):
+                logging.info('Hero {} correctly selected'.format(hero_name))
+                return
+        logging.error('Incorrect hero expected. Hero required is {}, but was not found'.format(hero_name))
+        raise ValueError('Incorrect hero expected. Hero required is {}, but was not found'.format(hero_name))
+
     # Main
-    def main(self):
-        logging.info('Bloons TD6 bot starting')
+    def main(self, required_hero=None):
         logging.info('Please navigate to the top left corner of the game, you have {} seconds'.format(
             config.START_SLEEP_SECONDS))
-        logging.debug('OpenCV loaded from {}'.format(cv2.data.haarcascades))
         time.sleep(config.START_SLEEP_SECONDS)
         self._offset = pag.position()
         logging.info('Screen offset set at {}'.format(self._offset))
+        if required_hero:
+            self._check_selected_hero(config.HERO_SELECTED[required_hero.lower()], required_hero)
 
         while True:
             self._game_counter += 1
@@ -137,16 +133,16 @@ class Bot(metaclass=ABCMeta):
                 self._monkeys_collection_path = None
                 self._play_game()
             except pag.FailSafeException:
-                logging.info('Bot stopped at game {}.'.format(self._game_counter))
-                exit(0)
+                logging.warning('FailSafe detected, stopping game {}.'.format(self._game_counter))
+                exit(1)
 
             game_time = time.time() - initial_time
             logging.info(
                 'Game {} has been completed in {} minutes {} seconds'.format(self._game_counter,
                                                                              int(game_time // 60),
                                                                              int(game_time % 60)))
-            logging.info('{}'.format('Monkeys collected: {}'.format(
-                self._monkeys_collection_path) if self._monkeys_collection_path else 'No monkeys collected.'))
+            logging.info('Monkeys collected: {}'.format(
+                self._monkeys_collection_path) if self._monkeys_collection_path else 'No monkeys collected.')
 
     @abstractmethod
     def _play_game(self):
