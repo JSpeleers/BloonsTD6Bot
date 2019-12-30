@@ -50,21 +50,22 @@ class Bot(metaclass=ABCMeta):
         self._click_on(config.BUTTON_EVENT_CONTINUE)
 
     # Waits
-    def wait_for(self, img):
+    def wait_for(self, img, do_checks=True):
         wait_counter = 0
         while not self._is_present(img):
             wait_counter += 1
-            self._do_checks(wait_counter)
+            if do_checks:
+                self._do_checks(wait_counter)
 
     def _wait_for_level_load(self):
         if self._is_present(config.PROMPT_OVERWRITE):  # Overwriting existing save
             logging.warning('Overwriting save')
             self._click_on(config.BUTTON_OVERWRITE_OK)
-        self.wait_for(config.BUTTON_START_LEVEL)
+        self.wait_for(config.BUTTON_START_LEVEL, do_checks=False)
 
     def _wait_for_level_completion(self):
         logging.info('Waiting for level to be completed')
-        self.wait_for(config.BUTTON_LEVEL_TO_HOME)
+        self.wait_for(config.BUTTON_LEVEL_TO_HOME, do_checks=False)
         logging.info('Level completed')
         self._click_on(config.BUTTON_LEVEL_TO_HOME)
         time.sleep(4)
