@@ -95,7 +95,7 @@ class Bot(metaclass=ABCMeta):
     def _check_game_paused(self, wait_counter):
         if wait_counter % config.CHECK_GAME_PAUSED_COUNTER == 0 and self._is_present(config.BUTTON_START_LEVEL):
             logging.warning('Game is paused detected - pressing play')
-            self._start_level()
+            self._start_level(fast_forward=False)
 
     def _check_defeated(self, wait_counter):
         if wait_counter % config.CHECK_DEFEATED_COUNTER == 0 and self._is_present(config.PROMPT_DEFEAT):
