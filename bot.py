@@ -25,7 +25,7 @@ class Bot(metaclass=ABCMeta):
 
     # Clicks
     @staticmethod
-    def _click_on(img):
+    def click_on(img):
         x = pag.locateCenterOnScreen(img, confidence=config.CLICK_ON_MATCHING_CONFIDENCE)
         if x is None:
             pag.screenshot('{}/debug_{}.png'.format(config.LOGS_DIR, time.time()))
@@ -33,10 +33,19 @@ class Bot(metaclass=ABCMeta):
             raise ValueError('Cannot find {} on screen'.format(img))
         pag.click(x)
 
-    def _start_level(self, fast_forward=True):
-        self._click_on(config.BUTTON_START_LEVEL)
+    def _start_game(self, fast_forward=True):
+        self.click_on(config.BUTTON_GAME_START)
         if fast_forward:
-            self._click_on(config.BUTTON_FAST_FORWARD)
+            self.click_on(config.BUTTON_GAME_FAST_FORWARD)
+
+    def _navigate_home(self):
+        self.click_on(config.BUTTON_GAME_TO_HOME)
+        time.sleep(4)
+        if self._is_present(config.BUTTON_EVENT_COLLECT):
+            logging.info('Received reward monkeys')
+            self.click_on(config.BUTTON_EVENT_COLLECT)
+            self._collect_event_rewards()
+            pag.press('esc')
 
     def _collect_event_rewards(self):
         logging.info('Collecting reward monkeys')
@@ -47,43 +56,53 @@ class Bot(metaclass=ABCMeta):
                 break
         self._monkeys_collection_path = '{}/collected_monkeys_{}.png'.format(config.LOGS_DIR, time.time())
         pag.screenshot(self._monkeys_collection_path)
-        self._click_on(config.BUTTON_EVENT_CONTINUE)
+        self.click_on(config.BUTTON_EVENT_CONTINUE)
+
+    def _load_game(self, game_map):
+        if config.DO_OPEN_MONKEYS or self._game_counter == 1:
+            game_map.navigate_to()
+        else:
+            self._load_next_game_trick()
+
+    def _load_next_game_trick(self):
+        self.click_on(config.BUTTON_GAME_FREEPLAY)
+        pag.press('esc')
+        pag.press('esc')
+        self.click_on(config.BUTTON_GAME_RESTART)
+        self.click_on(config.BUTTON_GAME_RESTART_CONFIRM)
+
+    def _game_completed(self):
+        if config.DO_OPEN_MONKEYS:
+            self._navigate_home()
 
     # Waits
-    def wait_for(self, img, do_checks=True):
+    def wait_for(self, img, do_all_checks=True):
         wait_counter = 0
         while not self._is_present(img):
             wait_counter += 1
-            if do_checks:
-                self._do_checks(wait_counter)
+            self._do_checks(wait_counter, do_all_checks)
 
-    def _wait_for_level_load(self):
+    def _wait_for_map_load(self):
         if self._is_present(config.PROMPT_OVERWRITE):  # Overwriting existing save
             logging.warning('Overwriting save')
-            self._click_on(config.BUTTON_OVERWRITE_OK)
-        self.wait_for(config.BUTTON_START_LEVEL, do_checks=False)
+            self.click_on(config.BUTTON_OVERWRITE_OK)
+        self.wait_for(config.BUTTON_GAME_START, do_all_checks=False)
 
-    def _wait_for_level_completion(self):
-        logging.info('Waiting for level to be completed')
-        self.wait_for(config.BUTTON_LEVEL_TO_HOME, do_checks=False)
-        logging.info('Level completed')
-        self._click_on(config.BUTTON_LEVEL_TO_HOME)
-        time.sleep(4)
-        if self._is_present(config.BUTTON_EVENT_COLLECT):
-            logging.info('Received reward monkeys')
-            self._click_on(config.BUTTON_EVENT_COLLECT)
-            self._collect_event_rewards()
-            pag.press('esc')
+    def _wait_for_game_completion(self):
+        logging.info('Waiting for game to be completed')
+        self.wait_for(config.BUTTON_GAME_TO_HOME, do_all_checks=False)
+        logging.info('Game completed')
 
     # Checks
     def _is_present(self, img):
         self._wait_location = pag.locateCenterOnScreen(img, confidence=config.WAIT_FOR_MATCHING_CONFIDENCE)
         return self._wait_location is not None
 
-    def _do_checks(self, wait_counter):
+    def _do_checks(self, wait_counter, do_all_checks=True):
         self._check_level_up(wait_counter)
-        self._check_game_paused(wait_counter)
-        self._check_defeated(wait_counter)
+        if do_all_checks:
+            self._check_game_paused(wait_counter)
+            self._check_defeated(wait_counter)
 
     def _check_level_up(self, wait_counter):
         if wait_counter % config.CHECK_LEVEL_UP_COUNTER == 0 and self._is_present(config.PROMPT_LEVEL_UP):
@@ -93,15 +112,15 @@ class Bot(metaclass=ABCMeta):
             self._check_game_paused(config.CHECK_GAME_PAUSED_COUNTER)
 
     def _check_game_paused(self, wait_counter):
-        if wait_counter % config.CHECK_GAME_PAUSED_COUNTER == 0 and self._is_present(config.BUTTON_START_LEVEL):
+        if wait_counter % config.CHECK_GAME_PAUSED_COUNTER == 0 and self._is_present(config.BUTTON_GAME_START):
             logging.warning('Game is paused detected - pressing play')
-            self._start_level(fast_forward=False)
+            self._start_game(fast_forward=False)
 
     def _check_defeated(self, wait_counter):
         if wait_counter % config.CHECK_DEFEATED_COUNTER == 0 and self._is_present(config.PROMPT_DEFEAT):
             logging.error('Defeat detected: starting new game')
-            self.wait_for(config.BUTTON_LEVEL_TO_HOME)
-            self._click_on(config.BUTTON_LEVEL_TO_HOME)
+            self.wait_for(config.BUTTON_GAME_TO_HOME)
+            self.click_on(config.BUTTON_GAME_TO_HOME)
             self._game_counter -= 1
             self.main()
             exit(-1)
