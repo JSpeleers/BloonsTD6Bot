@@ -108,4 +108,5 @@ venv.bak/
 
 # BTD6 Bot
 _logs/
+btd6bot/
 *.psd

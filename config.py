@@ -5,7 +5,7 @@ import sys
 def init_logging():
     logging.basicConfig(
         format='%(asctime)s - %(levelname)s - %(message)s',
-        level=logging.INFO,
+        level=logging.DEBUG,
         handlers=[
             logging.StreamHandler(sys.stdout)
         ]

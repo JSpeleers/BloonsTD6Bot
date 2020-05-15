@@ -128,7 +128,7 @@ class Bot(metaclass=ABCMeta):
     def _check_selected_hero(self, hero_images, hero_name):
         for img in hero_images:
             if self._is_present(img):
-                logging.info('Hero {} correctly selected'.format(hero_name))
+                logging.debug('Hero {} correctly selected'.format(hero_name))
                 return
         logging.error('Incorrect hero expected. Hero required is {}, but was not found'.format(hero_name))
         raise ValueError('Incorrect hero expected. Hero required is {}, but was not found'.format(hero_name))
@@ -139,7 +139,7 @@ class Bot(metaclass=ABCMeta):
             config.START_SLEEP_SECONDS))
         time.sleep(config.START_SLEEP_SECONDS)
         self._offset = pag.position()
-        logging.info('Screen offset set at {}'.format(self._offset))
+        logging.debug('Screen offset set at {}'.format(self._offset))
         if required_hero:
             self._check_selected_hero(config.HERO_SELECTED[required_hero.lower()], required_hero)
 
