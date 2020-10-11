@@ -1,3 +1,9 @@
+### Deprecated
+
+Before reading the instructions, please be aware that this project is not maintained anymore. I found that after each update of _Bloons TD 6_, all images of buttons, heroes and skills would be outdated. To still use the bot, please create your own snippets of those images and replace the ones in `./resources/`. If the flow of the menus was not changed, this should still work with the new images.
+
+--------------
+
 # BloonsTD6Bot
 
 The BloonsTD6Bot is a farming bot for the popular tower defence game [_Bloons TD 6_](https://ninjakiwi.com/Games/Steam/Bloons-TD-6-Steam.html). 
